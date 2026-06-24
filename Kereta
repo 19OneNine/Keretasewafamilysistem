@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Car Rental Family System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9}
+header{background:#111827;color:#fff;padding:15px;text-align:center}
+.container{max-width:1000px;margin:auto;padding:15px}
+.card{background:#fff;padding:15px;margin:10px 0;border-radius:10px}
+input,select,button{width:100%;padding:10px;margin:5px 0}
+button{background:#111827;color:#fff;border:none;border-radius:6px}
+table{width:100%;border-collapse:collapse}
+td,th{border:1px solid #ddd;padding:8px;text-align:center}
+th{background:#1f2937;color:#fff}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Car Rental Family System</h2>
+</header>
+
+<div class="container">
+
+<!-- FORM -->
+<div class="card">
+<h3>Tambah Booking</h3>
+
+<input id="name" placeholder="Nama Pelanggan">
+<input id="phone" placeholder="No Telefon">
+
+<select id="car">
+<option>Axia Baru</option>
+<option>Axia Lama</option>
+<option>Bezza 1.3</option>
+<option>Bezza 1.0</option>
+<option>Alza</option>
+<option>Exora</option>
+</select>
+
+<input id="pickup" type="date">
+<input id="return" type="date">
+
+<button onclick="addBooking()">Simpan Booking</button>
+</div>
+
+<!-- LIST -->
+<div class="card">
+<h3>Senarai Booking</h3>
+<table>
+<thead>
+<tr>
+<th>Nama</th>
+<th>Telefon</th>
+<th>Kereta</th>
+<th>Tarikh</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAKHBCEKp_CYgGl4_Nkt61xvFhoVzzc568",
+  authDomain: "car-rental-family.firebaseapp.com",
+  projectId: "car-rental-family",
+  storageBucket: "car-rental-family.firebasestorage.app",
+  messagingSenderId: "461137263240",
+  appId: "1:461137263240:web:de963a073149e87f1c3d3d"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* 1. ADD BOOKING */
+function addBooking(){
+  db.collection("bookings").add({
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    car: document.getElementById("car").value,
+    pickup: document.getElementById("pickup").value,
+    return: document.getElementById("return").value,
+    time: new Date()
+  });
+
+  alert("Booking berjaya disimpan");
+  load();
+}
+
+/* 2. LOAD REALTIME */
+function load(){
+  db.collection("bookings").orderBy("time","desc")
+  .onSnapshot(snapshot=>{
+    let html = "";
+
+    snapshot.forEach(doc=>{
+      let d = doc.data();
+      html += `
+        <tr>
+          <td>${d.name}</td>
+          <td>${d.phone}</td>
+          <td>${d.car}</td>
+          <td>${d.pickup} → ${d.return}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("list").innerHTML = html;
+  });
+}
+
+/* AUTO LOAD */
+load();
+
+</script>
+
+</body>
+</html>
